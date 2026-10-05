@@ -104,7 +104,7 @@ module "ec2_instances" {
   depends_on = [module.vpc]
 
   instance_count     = var.instance_count
-  instance_type      = "t2.micro"
+  instance_type      = var.ec2_instance_type
   subnet_ids         = module.vpc.private_subnets[*]
   security_group_ids = [module.app_security_group.security_group_id]
 
