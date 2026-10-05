@@ -15,6 +15,8 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+resource "aws_s3_bucket" "example" { }
+
 resource "aws_instance" "example_a" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
@@ -23,6 +25,13 @@ resource "aws_instance" "example_a" {
 resource "aws_instance" "example_b" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
+}
+
+resource "aws_instance" "example_b" {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = "t2.micro"
+
+  depends_on = [aws_s3_bucket.example]
 }
 
 resource "aws_eip" "ip" {
