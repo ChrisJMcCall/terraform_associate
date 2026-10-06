@@ -61,6 +61,21 @@ module "elb_http" {
   }
 }
 
+data "aws_ec2_instance_type" "app" {
+  instance_type = var.aws_instance_type
+}
+
+data "aws_vpc" "app" {
+  id = var.aws_vpc_id
+
+  lifecycle {
+    postcondition {
+      condition     = self.enable_dns_support == true
+      error_message = "The selected VPC must have DNS support enabled."      
+    }
+  }
+}
+
 resource "aws_instance" "app" {
   count = var.aws_instance_count
 
@@ -69,4 +84,17 @@ resource "aws_instance" "app" {
 
   subnet_id              = var.aws_private_subnet_ids[count.index % length(var.aws_private_subnet_ids)]
   vpc_security_group_ids = [module.app_security_group.security_group_id]
+
+  lifecycle {
+    precondition {
+      condition     = var.aws_instance_count % length(var.aws_private_subnet_ids) == 0
+      error_message = "The number of instances (${var.aws_instance_count}) must be evenly divisible by the number of private subnets (${length(var.aws_private_subnet_ids)})."
+    }
+
+    precondition {
+      condition     = data.aws_ec2_instance_type.app.ebs_optimized_support != "unsupported"
+      error_message = "The EC2 instance type (${var.aws_instance_type}) must support EBS optimization."      
+    }
+  }
+
 }

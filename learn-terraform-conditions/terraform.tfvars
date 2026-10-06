@@ -1,5 +1,5 @@
-aws_instance_type = "t2.micro"
+aws_instance_type = "t3.micro"
 
-aws_instance_count = 3
+aws_instance_count = 4
 
-enable_dns = false
+enable_dns = true
