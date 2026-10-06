@@ -39,7 +39,6 @@ resource "aws_instance" "example" {
               #!/bin/bash
               apt-get update
               apt-get install -y apache2
-              sed -i -e 's/80/8080/' /etc/apache2/ports.conf
               echo "Hello World" > /var/www/html/index.html
               systemctl restart apache2
               EOF
@@ -47,13 +46,18 @@ resource "aws_instance" "example" {
     Name          = "terraform-learn-state-ec2"
     drift_example = "v1"
   }
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [tags]
+  }
 }
 
 resource "aws_security_group" "sg_web" {
   name = "sg_web"
   ingress {
-    from_port   = "8080"
-    to_port     = "8080"
+    from_port   = "80"
+    to_port     = "80"
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
